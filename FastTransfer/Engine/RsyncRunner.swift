@@ -72,7 +72,7 @@ class RsyncRunner {
             let proc = Process()
             proc.executableURL = URL(fileURLWithPath: rsyncPath)
 
-            var args = ["-aHAX", "--info=progress2", "--partial", "--inplace", "--human-readable", "--no-inc-recursive"]
+            var args = ["-aH", "--info=progress2", "--partial", "--inplace", "--human-readable", "--no-inc-recursive"]
             for source in sources {
                 args.append(source.path)
             }
