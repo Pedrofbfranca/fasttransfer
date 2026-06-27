@@ -1,0 +1,57 @@
+name: Build FastTransfer DMG
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
+      - name: Build app (unsigned)
+        run: |
+          xcodebuild \
+            -project FastTransfer.xcodeproj \
+            -scheme FastTransfer \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Find built app
+        run: find build -name "FastTransfer.app" -type d | head -5
+
+      - name: Create DMG
+        run: |
+          APP_PATH=$(find build -name "FastTransfer.app" -type d | head -1)
+
+          # Create staging folder
+          mkdir -p dmg_staging
+          cp -r "$APP_PATH" dmg_staging/FastTransfer.app
+          ln -s /Applications dmg_staging/Applications
+
+          # Create DMG
+          hdiutil create \
+            -volname "FastTransfer" \
+            -srcfolder dmg_staging \
+            -ov \
+            -format UDZO \
+            FastTransfer.dmg
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: FastTransfer-DMG
+          path: FastTransfer.dmg
+          retention-days: 30

@@ -1,0 +1,306 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F52FA29C6CE24AA79EB725C1 /* FastTransferApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 021BAAEB19B2496B8CC15E6F; };
+		B04E595E322C4FF89C0945E6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 319A1905488B4290A28FE51D; };
+		46D51A680CDC41C78A8D6946 /* TransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5884C4AC8146248775689E; };
+		E8E4CF1CCB424F1789ABED49 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B8679EB99D49018ADCAC23; };
+		F27C8287B5F84605B9FB0D42 /* TransferJob.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E250D017FD45CEA764E076; };
+		72EF608506334D129DB89EA4 /* FavoriteDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = B374400246FC4C52BD8C2F48; };
+		60AE1C1F3C2F44B39968BCBC /* TransferRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C2E0610DF34E26B5253A1B; };
+		5A71049640404599BFAF6694 /* RsyncRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3307135EB09B49F2AACD8431; };
+		2D878C6A0569493B96AC878F /* TransferManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824C1FF577B04AE89CCA5005; };
+		F59232B2B09E4D0596C99558 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E96D5B3B33C4F91A2C5FF49; };
+		0D6864C964404EA387560DFD /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7687414AE5E4745BF276A1F; };
+		2151DB6B6D7948C39EB6D9A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA4A6EDAB9AD4879AF8385AF; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		021BAAEB19B2496B8CC15E6F /* FastTransferApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastTransferApp.swift; sourceTree = "<group>"; };
+		319A1905488B4290A28FE51D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DB5884C4AC8146248775689E /* TransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferView.swift; sourceTree = "<group>"; };
+		64B8679EB99D49018ADCAC23 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		F3E250D017FD45CEA764E076 /* TransferJob.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferJob.swift; sourceTree = "<group>"; };
+		B374400246FC4C52BD8C2F48 /* FavoriteDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteDestination.swift; sourceTree = "<group>"; };
+		A4C2E0610DF34E26B5253A1B /* TransferRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferRecord.swift; sourceTree = "<group>"; };
+		3307135EB09B49F2AACD8431 /* RsyncRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RsyncRunner.swift; sourceTree = "<group>"; };
+		824C1FF577B04AE89CCA5005 /* TransferManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferManager.swift; sourceTree = "<group>"; };
+		5E96D5B3B33C4F91A2C5FF49 /* FavoritesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesManager.swift; sourceTree = "<group>"; };
+		D7687414AE5E4745BF276A1F /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
+		CA4A6EDAB9AD4879AF8385AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		664A127F9CD9443196CA81A0 /* FastTransfer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FastTransfer.entitlements; sourceTree = "<group>"; };
+		31A1CC4862814F9BA15BAD93 /* FastTransfer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FastTransfer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		09510DA793944F9BA372C8E7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A6525A7E939E4CCA88941B5F /* root */ = {
+			isa = PBXGroup;
+			children = (
+				94D7C832528944968A72445D /* FastTransfer */,
+				73409968813A46E19A886F0E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		94D7C832528944968A72445D /* FastTransfer */ = {
+			isa = PBXGroup;
+			children = (
+				021BAAEB19B2496B8CC15E6F /* FastTransferApp.swift */,
+				664A127F9CD9443196CA81A0 /* FastTransfer.entitlements */,
+				CA4A6EDAB9AD4879AF8385AF /* Assets.xcassets */,
+				C904B4625E714D2F8C5F9746 /* Views */,
+				25C0DB725B864F44B86F0936 /* Models */,
+				A8573B50893A47048D02595E /* Engine */,
+				E3592C597CA24CFEA87EEB9D /* Managers */,
+			);
+			path = FastTransfer;
+			sourceTree = "<group>";
+		};
+		C904B4625E714D2F8C5F9746 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				319A1905488B4290A28FE51D /* ContentView.swift */,
+				DB5884C4AC8146248775689E /* TransferView.swift */,
+				64B8679EB99D49018ADCAC23 /* HistoryView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		25C0DB725B864F44B86F0936 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F3E250D017FD45CEA764E076 /* TransferJob.swift */,
+				B374400246FC4C52BD8C2F48 /* FavoriteDestination.swift */,
+				A4C2E0610DF34E26B5253A1B /* TransferRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A8573B50893A47048D02595E /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				3307135EB09B49F2AACD8431 /* RsyncRunner.swift */,
+				824C1FF577B04AE89CCA5005 /* TransferManager.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		E3592C597CA24CFEA87EEB9D /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				5E96D5B3B33C4F91A2C5FF49 /* FavoritesManager.swift */,
+				D7687414AE5E4745BF276A1F /* HistoryManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		73409968813A46E19A886F0E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				31A1CC4862814F9BA15BAD93 /* FastTransfer.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A086182C934D4FC98B5070EE /* FastTransfer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA949214E1E542AAA006A5E3;
+			buildPhases = (
+				09BA9788B1874B0698081DAC /* Sources */,
+				09510DA793944F9BA372C8E7 /* Frameworks */,
+				841F8BE772EC43828003A5FC /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = FastTransfer;
+			productName = FastTransfer;
+			productReference = 31A1CC4862814F9BA15BAD93;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7F82279DF363487EBA24CF9E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A086182C934D4FC98B5070EE = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = 6D6DE75535724CE59E68AFB1;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = A6525A7E939E4CCA88941B5F;
+			productRefGroup = 73409968813A46E19A886F0E;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A086182C934D4FC98B5070EE /* FastTransfer */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		841F8BE772EC43828003A5FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2151DB6B6D7948C39EB6D9A6 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		09BA9788B1874B0698081DAC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F52FA29C6CE24AA79EB725C1 /* FastTransferApp.swift in Sources */,
+				B04E595E322C4FF89C0945E6 /* ContentView.swift in Sources */,
+				46D51A680CDC41C78A8D6946 /* TransferView.swift in Sources */,
+				E8E4CF1CCB424F1789ABED49 /* HistoryView.swift in Sources */,
+				F27C8287B5F84605B9FB0D42 /* TransferJob.swift in Sources */,
+				72EF608506334D129DB89EA4 /* FavoriteDestination.swift in Sources */,
+				60AE1C1F3C2F44B39968BCBC /* TransferRecord.swift in Sources */,
+				5A71049640404599BFAF6694 /* RsyncRunner.swift in Sources */,
+				2D878C6A0569493B96AC878F /* TransferManager.swift in Sources */,
+				F59232B2B09E4D0596C99558 /* FavoritesManager.swift in Sources */,
+				0D6864C964404EA387560DFD /* HistoryManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		307D077639AF41CD8ACF92FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("DEBUG=1", "$(inherited)");
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		4AD16C9530ED467CAF225864 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		925BF454415B499285234C8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FastTransfer/FastTransfer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fasttransfer.app;
+				PRODUCT_NAME = FastTransfer;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3A2120FDFCC941CF904C5EF1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = FastTransfer/FastTransfer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fasttransfer.app;
+				PRODUCT_NAME = FastTransfer;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6D6DE75535724CE59E68AFB1 /* Build configuration list for PBXProject "FastTransfer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				307D077639AF41CD8ACF92FA /* Debug */,
+				4AD16C9530ED467CAF225864 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CA949214E1E542AAA006A5E3 /* Build configuration list for PBXNativeTarget "FastTransfer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				925BF454415B499285234C8E /* Debug */,
+				3A2120FDFCC941CF904C5EF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7F82279DF363487EBA24CF9E /* Project object */;
+}
