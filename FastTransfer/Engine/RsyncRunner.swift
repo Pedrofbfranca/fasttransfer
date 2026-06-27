@@ -1,10 +1,10 @@
 import Foundation
+import UserNotifications
 
-// Copies files using FileManager with real-time progress tracking.
-// Falls back to GNU rsync if available via Homebrew.
 @MainActor
 class RsyncRunner {
     private var isCancelled = false
+    private var isPaused = false
     private var process: Process?
 
     func run(
@@ -15,8 +15,8 @@ class RsyncRunner {
         onCompletion: @escaping @MainActor (Bool, String) -> Void
     ) {
         isCancelled = false
+        isPaused = false
 
-        // Try GNU rsync first (Homebrew)
         let gnuRsync = ["/opt/homebrew/bin/rsync", "/usr/local/bin/rsync"]
             .first { FileManager.default.fileExists(atPath: $0) }
 
@@ -29,6 +29,9 @@ class RsyncRunner {
         }
     }
 
+    func pause() { isPaused = true }
+    func resume() { isPaused = false }
+
     // MARK: - GNU rsync
 
     private func runRsync(
@@ -39,29 +42,23 @@ class RsyncRunner {
     ) {
         Task.detached { [weak self] in
             guard let self else { return }
-
             let proc = Process()
             proc.executableURL = URL(fileURLWithPath: rsyncPath)
             var args = ["-aH", "--info=progress2", "--partial", "--inplace", "--human-readable"]
             for source in sources { args.append(source.path) }
             args.append(destination.path + "/")
             proc.arguments = args
-
             let stdoutPipe = Pipe()
             let stderrPipe = Pipe()
             proc.standardOutput = stdoutPipe
             proc.standardError = stderrPipe
-
             await MainActor.run { self.process = proc }
-
             do { try proc.run() } catch {
                 await MainActor.run { onCompletion(false, error.localizedDescription) }
                 return
             }
-
             let handle = stdoutPipe.fileHandleForReading
             var buffer = Data()
-
             while proc.isRunning {
                 let chunk = handle.availableData
                 buffer.append(chunk)
@@ -70,28 +67,13 @@ class RsyncRunner {
                     buffer = buffer[buffer.index(after: idx)...]
                     if let line = String(data: lineData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines), !line.isEmpty {
                         let p = self.parseProgress2(line)
-                        await MainActor.run {
-                            onLog(line)
-                            if let p { onProgress(p) }
-                        }
+                        await MainActor.run { onLog(line); if let p { onProgress(p) } }
                     }
                 }
                 try? await Task.sleep(nanoseconds: 50_000_000)
             }
-
-            let remaining = handle.readDataToEndOfFile()
-            if let s = String(data: remaining, encoding: .utf8) {
-                for line in s.components(separatedBy: .newlines) {
-                    let t = line.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !t.isEmpty, let p = self.parseProgress2(t) {
-                        await MainActor.run { onProgress(p) }
-                    }
-                }
-            }
-
             let errStr = String(data: stderrPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
             proc.waitUntilExit()
-
             let cancelled = await MainActor.run { self.isCancelled }
             await MainActor.run {
                 if cancelled { onCompletion(false, "Cancelado.") }
@@ -101,7 +83,7 @@ class RsyncRunner {
         }
     }
 
-    // MARK: - Native copy (FileManager)
+    // MARK: - Native parallel copy
 
     private func runNativeCopy(
         sources: [URL], destination: URL,
@@ -111,18 +93,15 @@ class RsyncRunner {
     ) {
         Task.detached { [weak self] in
             guard let self else { return }
-
             let fm = FileManager.default
 
             // Enumerate all files
-            var allFiles: [(src: URL, dst: URL)] = []
+            var allFiles: [(src: URL, dst: URL, size: Int64)] = []
             var totalBytes: Int64 = 0
 
             for source in sources {
-                let destDir = destination.appendingPathComponent(source.lastPathComponent)
                 var isDir: ObjCBool = false
                 fm.fileExists(atPath: source.path, isDirectory: &isDir)
-
                 if isDir.boolValue {
                     guard let enumerator = fm.enumerator(at: source, includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey]) else { continue }
                     let items = enumerator.allObjects.compactMap { $0 as? URL }
@@ -131,78 +110,131 @@ class RsyncRunner {
                         if vals?.isDirectory == true { continue }
                         let rel = file.path.replacingOccurrences(of: source.deletingLastPathComponent().path + "/", with: "")
                         let dstFile = destination.appendingPathComponent(rel)
-                        allFiles.append((src: file, dst: dstFile))
-                        totalBytes += Int64(vals?.fileSize ?? 0)
+                        let size = Int64(vals?.fileSize ?? 0)
+                        allFiles.append((src: file, dst: dstFile, size: size))
+                        totalBytes += size
                     }
                 } else {
-                    let size = (try? source.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
-                    allFiles.append((src: source, dst: destDir))
-                    totalBytes += Int64(size)
+                    let size = Int64((try? source.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+                    allFiles.append((src: source, dst: destination.appendingPathComponent(source.lastPathComponent), size: size))
+                    totalBytes += size
                 }
             }
 
-            var copiedBytes: Int64 = 0
-            var copiedFiles = 0
-            var errors: [String] = []
+            // Parallel copy with up to 8 concurrent tasks
+            let copiedBytes = ActorCounter()
+            let copiedFiles = ActorIntCounter()
+            let errors = ActorStringList()
             let startTime = Date()
+            // Moving average for speed (last 5 samples)
+            let speedSampler = SpeedSampler()
 
-            for pair in allFiles {
-                let cancelled = await MainActor.run { self.isCancelled }
-                if cancelled { break }
+            await withTaskGroup(of: Void.self) { group in
+                let semaphore = AsyncSemaphore(limit: 8)
 
-                // Create parent dir
-                let parent = pair.dst.deletingLastPathComponent()
-                try? fm.createDirectory(at: parent, withIntermediateDirectories: true)
+                for pair in allFiles {
+                    await semaphore.wait()
 
-                // Remove existing if needed
-                if fm.fileExists(atPath: pair.dst.path) {
-                    try? fm.removeItem(at: pair.dst)
-                }
+                    group.addTask { [weak self] in
+                        defer { Task { await semaphore.signal() } }
+                        guard let self else { return }
 
-                do {
-                    try fm.copyItem(at: pair.src, to: pair.dst)
-                    let size = Int64((try? pair.src.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
-                    copiedBytes += size
-                    copiedFiles += 1
+                        // Check cancelled
+                        let cancelled = await MainActor.run { self.isCancelled }
+                        if cancelled { return }
 
-                    let elapsed = Date().timeIntervalSince(startTime)
-                    let speedBps = elapsed > 0 ? Double(copiedBytes) / elapsed : 0
-                    let remaining = speedBps > 0 ? Double(totalBytes - copiedBytes) / speedBps : 0
-                    let pct = totalBytes > 0 ? Double(copiedBytes) / Double(totalBytes) * 100 : 0
+                        // Wait if paused
+                        while await MainActor.run(body: { self.isPaused }) {
+                            try? await Task.sleep(nanoseconds: 200_000_000)
+                        }
 
-                    var p = TransferProgress()
-                    p.percentage = pct
-                    p.transferredBytes = copiedBytes
-                    p.totalBytes = totalBytes
-                    p.filesTransferred = copiedFiles
-                    p.totalFiles = allFiles.count
-                    p.speed = RsyncRunner.formatSpeed(speedBps)
-                    p.timeRemaining = RsyncRunner.formatTime(remaining)
-                    p.currentFile = pair.src.lastPathComponent
+                        // Create parent dir
+                        let parent = pair.dst.deletingLastPathComponent()
+                        try? fm.createDirectory(at: parent, withIntermediateDirectories: true)
 
-                    let pCopy = p
-                    let fileName = pair.src.lastPathComponent
-                    await MainActor.run {
-                        onLog("✓ \(fileName)")
-                        onProgress(pCopy)
+                        // Skip if identical (resume support)
+                        if fm.fileExists(atPath: pair.dst.path) {
+                            let srcMod = (try? pair.src.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+                            let dstMod = (try? pair.dst.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+                            let dstSize = Int64((try? pair.dst.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+                            if dstSize == pair.size && srcMod == dstMod {
+                                // Already copied, skip
+                                await copiedBytes.add(pair.size)
+                                await copiedFiles.increment()
+                                return
+                            }
+                            try? fm.removeItem(at: pair.dst)
+                        }
+
+                        do {
+                            try fm.copyItem(at: pair.src, to: pair.dst)
+                            await copiedBytes.add(pair.size)
+                            await copiedFiles.increment()
+                        } catch {
+                            await errors.append(error.localizedDescription)
+                        }
+
+                        // Report progress
+                        let copied = await copiedBytes.value
+                        let files = await copiedFiles.value
+                        let elapsed = Date().timeIntervalSince(startTime)
+                        let instantSpeed = elapsed > 0 ? Double(copied) / elapsed : 0
+                        await speedSampler.add(instantSpeed)
+                        let smoothSpeed = await speedSampler.average()
+                        let remaining = smoothSpeed > 0 ? Double(totalBytes - copied) / smoothSpeed : 0
+                        let pct = totalBytes > 0 ? Double(copied) / Double(totalBytes) * 100 : 0
+
+                        var p = TransferProgress()
+                        p.percentage = min(pct, 99.9)
+                        p.transferredBytes = copied
+                        p.totalBytes = totalBytes
+                        p.filesTransferred = files
+                        p.totalFiles = allFiles.count
+                        p.speed = RsyncRunner.formatSpeed(smoothSpeed)
+                        p.timeRemaining = RsyncRunner.formatTime(remaining)
+                        p.currentFile = pair.src.lastPathComponent
+
+                        let pCopy = p
+                        let name = pair.src.lastPathComponent
+                        await MainActor.run {
+                            onLog("✓ \(name)")
+                            onProgress(pCopy)
+                        }
                     }
-                } catch {
-                    errors.append(error.localizedDescription)
                 }
             }
 
             let cancelled = await MainActor.run { self.isCancelled }
-            let errorsCopy = errors
+            let errorList = await errors.all()
+            let finalBytes = await copiedBytes.value
+
+            // Send notification
+            if !cancelled {
+                await self.sendNotification(
+                    title: "Transferência concluída",
+                    body: "\(RsyncRunner.formatBytes(finalBytes)) copiados com sucesso."
+                )
+            }
+
             await MainActor.run {
-                if cancelled {
-                    onCompletion(false, "Cancelado pelo usuário.")
-                } else if errorsCopy.isEmpty {
-                    onCompletion(true, "")
-                } else {
-                    onCompletion(false, errorsCopy.joined(separator: "\n"))
-                }
+                if cancelled { onCompletion(false, "Cancelado pelo usuário.") }
+                else if errorList.isEmpty { onCompletion(true, "") }
+                else { onCompletion(false, errorList.joined(separator: "\n")) }
             }
         }
+    }
+
+    // MARK: - Notification
+
+    private func sendNotification(title: String, body: String) async {
+        let center = UNUserNotificationCenter.current()
+        try? await center.requestAuthorization(options: [.alert, .sound])
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        try? await center.add(req)
     }
 
     // MARK: - Helpers
@@ -211,12 +243,10 @@ class RsyncRunner {
         let pattern = #"([\d,.]+\w*)\s+(\d+)%\s+([\d,.]+\w+/s)\s+([\d:]+|--:--:--)"#
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let match = regex.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) else { return nil }
-
         func g(_ i: Int) -> String {
             guard let r = Range(match.range(at: i), in: line) else { return "" }
             return String(line[r])
         }
-
         var p = TransferProgress()
         p.percentage = Double(g(2)) ?? 0
         p.speed = g(3)
@@ -228,9 +258,7 @@ class RsyncRunner {
     private nonisolated func parseBytes(_ str: String) -> Int64 {
         let s = str.uppercased()
         for (suffix, mult) in [("TB", Int64(1_099_511_627_776)), ("GB", 1_073_741_824), ("MB", 1_048_576), ("KB", 1_024), ("B", 1)] {
-            if s.hasSuffix(suffix), let d = Double(s.dropLast(suffix.count)) {
-                return Int64(d * Double(mult))
-            }
+            if s.hasSuffix(suffix), let d = Double(s.dropLast(suffix.count)) { return Int64(d * Double(mult)) }
         }
         return Int64(str) ?? 0
     }
@@ -242,16 +270,62 @@ class RsyncRunner {
         return String(format: "%.0f B/s", bps)
     }
 
-    nonisolated static func formatTime(_ seconds: Double) -> String {
-        if seconds <= 0 || seconds.isInfinite || seconds.isNaN { return "--:--:--" }
-        let s = Int(seconds)
-        return String(format: "%d:%02d:%02d", s / 3600, (s % 3600) / 60, s % 60)
+    nonisolated static func formatTime(_ s: Double) -> String {
+        if s <= 0 || s.isInfinite || s.isNaN { return "--:--:--" }
+        let t = Int(s)
+        return String(format: "%d:%02d:%02d", t / 3600, (t % 3600) / 60, t % 60)
+    }
+
+    nonisolated static func formatBytes(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 
     nonisolated func cancel() {
-        Task { @MainActor in
-            isCancelled = true
-            process?.terminate()
-        }
+        Task { @MainActor in isCancelled = true; process?.terminate() }
+    }
+}
+
+// MARK: - Concurrency helpers
+
+actor ActorCounter {
+    private(set) var value: Int64 = 0
+    func add(_ n: Int64) { value += n }
+}
+
+actor ActorIntCounter {
+    private(set) var value: Int = 0
+    func increment() { value += 1 }
+}
+
+actor ActorStringList {
+    private var items: [String] = []
+    func append(_ s: String) { items.append(s) }
+    func all() -> [String] { items }
+}
+
+actor SpeedSampler {
+    private var samples: [Double] = []
+    private let maxSamples = 8
+    func add(_ v: Double) {
+        samples.append(v)
+        if samples.count > maxSamples { samples.removeFirst() }
+    }
+    func average() -> Double {
+        guard !samples.isEmpty else { return 0 }
+        return samples.reduce(0, +) / Double(samples.count)
+    }
+}
+
+actor AsyncSemaphore {
+    private var count: Int
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    init(limit: Int) { count = limit }
+    func wait() async {
+        if count > 0 { count -= 1; return }
+        await withCheckedContinuation { waiters.append($0) }
+    }
+    func signal() {
+        if waiters.isEmpty { count += 1 }
+        else { waiters.removeFirst().resume() }
     }
 }

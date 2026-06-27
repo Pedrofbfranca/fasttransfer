@@ -356,22 +356,45 @@ struct ActiveJobRow: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Cancelar") {
-                    job.cancel()
+
+                if job.status == .paused {
+                    Button("Retomar") { job.resume() }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.blue)
+                        .font(.caption)
+                } else {
+                    Button("Pausar") { job.pause() }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
                 }
-                .buttonStyle(.borderless)
-                .foregroundStyle(.red)
-                .font(.caption)
+
+                Button("Cancelar") { job.cancel() }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.red)
+                    .font(.caption)
             }
 
             ProgressView(value: job.progress.percentage / 100)
                 .progressViewStyle(.linear)
+                .opacity(job.status == .paused ? 0.5 : 1)
 
             HStack {
-                if !job.progress.speed.isEmpty {
+                if job.status == .paused {
+                    Text("Pausado")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                } else if !job.progress.speed.isEmpty {
                     Text(job.progress.speed)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+                }
+                if !job.progress.currentFile.isEmpty {
+                    Text(job.progress.currentFile)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
                 }
                 Spacer()
                 if !job.progress.timeRemaining.isEmpty && job.progress.timeRemaining != "--:--:--" {
@@ -383,6 +406,13 @@ struct ActiveJobRow: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
+            }
+
+            // Files counter
+            if job.progress.totalFiles > 0 {
+                Text("\(job.progress.filesTransferred) de \(job.progress.totalFiles) arquivos")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary.opacity(0.7))
             }
         }
         .padding(12)

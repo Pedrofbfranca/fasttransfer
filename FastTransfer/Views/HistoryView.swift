@@ -93,16 +93,17 @@ struct CompletedJobRow: View {
                         .lineLimit(2)
                 }
                 if let duration = job.duration {
-                    HStack(spacing: 8) {
-                        Text(ByteCountFormatter.string(fromByteCount: job.progress.transferredBytes, countStyle: .file))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                        Text("•")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                    let bytes = job.progress.transferredBytes
+                    let avgSpeed = duration > 0 ? Double(bytes) / duration : 0
+                    HStack(spacing: 6) {
+                        Text(ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file))
+                            .font(.caption2).foregroundStyle(.secondary)
+                        Text("•").font(.caption2).foregroundStyle(.secondary)
                         Text(formatDuration(duration))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .font(.caption2).foregroundStyle(.secondary)
+                        Text("•").font(.caption2).foregroundStyle(.secondary)
+                        Text("média \(RsyncRunner.formatSpeed(avgSpeed))")
+                            .font(.caption2).foregroundStyle(.secondary)
                     }
                 }
             }

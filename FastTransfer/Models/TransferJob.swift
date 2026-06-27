@@ -60,4 +60,14 @@ class TransferJob: ObservableObject, Identifiable {
         runner?.cancel()
         status = .cancelled
     }
+
+    func pause() {
+        runner?.pause()
+        status = .paused
+    }
+
+    func resume() {
+        runner?.resume()
+        status = .running
+    }
 }
