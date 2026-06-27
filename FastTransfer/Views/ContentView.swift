@@ -73,8 +73,13 @@ struct SidebarView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(.bottom, 16)
+                .padding(.bottom, 8)
             }
+
+            Text("Desenvolvido por Pedro França")
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary.opacity(0.5))
+                .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(NSColor.controlBackgroundColor))

@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  APP_VERSION: "1.1"
+
 jobs:
   build:
     runs-on: macos-15
@@ -27,7 +30,8 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO
+            ONLY_ACTIVE_ARCH=NO \
+            MARKETING_VERSION=${{ env.APP_VERSION }}
 
       - name: Find built app
         run: find build -name "FastTransfer.app" -type d | head -5
@@ -36,22 +40,20 @@ jobs:
         run: |
           APP_PATH=$(find build -name "FastTransfer.app" -type d | head -1)
 
-          # Create staging folder
           mkdir -p dmg_staging
           cp -r "$APP_PATH" dmg_staging/FastTransfer.app
           ln -s /Applications dmg_staging/Applications
 
-          # Create DMG
           hdiutil create \
-            -volname "FastTransfer" \
+            -volname "FastTransfer ${{ env.APP_VERSION }}" \
             -srcfolder dmg_staging \
             -ov \
             -format UDZO \
-            FastTransfer.dmg
+            "FastTransfer-v${{ env.APP_VERSION }}.dmg"
 
       - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: FastTransfer-DMG
-          path: FastTransfer.dmg
+          name: "FastTransfer-v${{ env.APP_VERSION }}"
+          path: "FastTransfer-v${{ env.APP_VERSION }}.dmg"
           retention-days: 30

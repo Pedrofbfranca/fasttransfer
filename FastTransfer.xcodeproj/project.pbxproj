@@ -19,6 +19,7 @@
 		F59232B2B09E4D0596C99558 /* FavoritesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E96D5B3B33C4F91A2C5FF49; };
 		0D6864C964404EA387560DFD /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7687414AE5E4745BF276A1F; };
 		2151DB6B6D7948C39EB6D9A6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA4A6EDAB9AD4879AF8385AF; };
+		AA11BB22CC33DD44EE55FF66 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF67; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		D7687414AE5E4745BF276A1F /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
 		CA4A6EDAB9AD4879AF8385AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		664A127F9CD9443196CA81A0 /* FastTransfer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FastTransfer.entitlements; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF67 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		31A1CC4862814F9BA15BAD93 /* FastTransfer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FastTransfer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -62,6 +64,7 @@
 				021BAAEB19B2496B8CC15E6F /* FastTransferApp.swift */,
 				664A127F9CD9443196CA81A0 /* FastTransfer.entitlements */,
 				CA4A6EDAB9AD4879AF8385AF /* Assets.xcassets */,
+				AA11BB22CC33DD44EE55FF67 /* AppIcon.icns */,
 				C904B4625E714D2F8C5F9746 /* Views */,
 				25C0DB725B864F44B86F0936 /* Models */,
 				A8573B50893A47048D02595E /* Engine */,
@@ -170,6 +173,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2151DB6B6D7948C39EB6D9A6 /* Assets.xcassets in Resources */,
+				AA11BB22CC33DD44EE55FF66 /* AppIcon.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,7 +249,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Desenvolvido por Pedro França";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
 				MARKETING_VERSION = 1.0;
@@ -268,7 +272,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Desenvolvido por Pedro França";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
 				MARKETING_VERSION = 1.0;
